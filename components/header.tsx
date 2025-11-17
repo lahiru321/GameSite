@@ -1,0 +1,59 @@
+'use client'
+
+import Link from 'next/link'
+import { Menu, ShoppingCart, User } from 'lucide-react'
+import { useState } from 'react'
+
+export default function Header() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  return (
+    <header className="fixed top-0 w-full z-50 border-b border-border bg-background/80 backdrop-blur-md">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+              <span className="font-bold text-primary-foreground text-lg">GV</span>
+            </div>
+            <span className="text-xl font-bold hidden sm:inline">GameVault</span>
+          </div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-8">
+            <Link href="/" className="text-foreground/70 hover:text-foreground transition">Home</Link>
+            <a href="#about" className="text-foreground/70 hover:text-foreground transition">About</a>
+            <Link href="/store" className="text-foreground/70 hover:text-foreground transition">Store</Link>
+            <a href="#contact" className="text-foreground/70 hover:text-foreground transition">Contact</a>
+          </nav>
+
+          {/* Right Icons */}
+          <div className="flex items-center gap-4">
+            <button className="p-2 hover:bg-muted rounded-lg transition">
+              <ShoppingCart className="w-5 h-5" />
+            </button>
+            <button className="p-2 hover:bg-muted rounded-lg transition">
+              <User className="w-5 h-5" />
+            </button>
+            <button 
+              className="md:hidden p-2"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <nav className="md:hidden mt-4 pb-4 border-t border-border pt-4 flex flex-col gap-3">
+            <Link href="/" className="text-foreground/70 hover:text-foreground transition block">Home</Link>
+            <a href="#about" className="text-foreground/70 hover:text-foreground transition block">About</a>
+            <Link href="/store" className="text-foreground/70 hover:text-foreground transition block">Store</Link>
+            <a href="#contact" className="text-foreground/70 hover:text-foreground transition block">Contact</a>
+          </nav>
+        )}
+      </div>
+    </header>
+  )
+}
