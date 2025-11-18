@@ -1,23 +1,46 @@
 import Header from '@/components/header'
 import Footer from '@/components/footer'
 import ProductCard from '@/components/product-card'
+import { createServerSupabase } from '@/lib/supabase/server'
 
 export const metadata = {
   title: 'Store - GameVault',
   description: 'Browse and purchase products from GameVault store.'
 }
 
-export default function StorePage() {
-  const products = [
-    { id: 1, title: 'Cyberpunk 2077', platform: 'Steam', image: '/cyberpunk-game-cover.jpg', priceUsd: 1, cryptoPrice: '1 USDT', category: 'Action RPG' },
-    { id: 2, title: 'Elden Ring', platform: 'PlayStation', image: '/elden-ring-game-cover.jpg', priceUsd: 2, cryptoPrice: '2 USDT', category: 'RPG' },
-    { id: 3, title: "Baldur's Gate 3", platform: 'PC', image: '/baldurs-gate-3-game-cover.jpg', priceUsd: 3, cryptoPrice: '3 USDT', category: 'RPG' },
-    { id: 4, title: 'Starfield', platform: 'Xbox', image: '/starfield-game-cover.jpg', priceUsd: 1, cryptoPrice: '1 USDT', category: 'Sci-Fi RPG' },
-    { id: 5, title: 'Palworld', platform: 'Steam', image: '/palworld-game-cover.jpg', priceUsd: 2, cryptoPrice: '2 USDT', category: 'Adventure' },
-    { id: 6, title: "Dragon's Dogma 2", platform: 'PlayStation', image: '/dragons-dogma-2-game-cover.jpg', priceUsd: 3, cryptoPrice: '3 USDT', category: 'Fantasy RPG' },
-    { id: 7, title: 'Final Fantasy VII Rebirth', platform: 'PlayStation', image: '/final-fantasy-vii-rebirth.jpg', priceUsd: 1, cryptoPrice: '1 USDT', category: 'RPG' },
-    { id: 8, title: 'Indiana Jones Game', platform: 'PC', image: '/indiana-jones-adventure-game.jpg', priceUsd: 2, cryptoPrice: '2 USDT', category: 'Action Adventure' }
-  ]
+export default async function StorePage() {
+  // Server-side fetch from Supabase
+  let products: any[] = []
+  let errorMsg: string | null = null
+
+  try {
+    const supabase = await createServerSupabase()
+    const { data, error } = await supabase
+      .from('products')
+      .select('id, title, image, description, price, status, platform, category')
+      .in('status', ['active', 'available'])
+      .order('id', { ascending: true })
+
+    if (error) {
+      errorMsg = error.message
+    } else if (!data || data.length === 0) {
+      products = []
+    } else {
+      // Map DB rows into ProductCard shape
+      products = data.map((p: any) => ({
+        id: p.id,
+        title: p.title,
+        platform: p.platform ?? 'PC',
+        image: p.image ?? '/placeholder.svg',
+        priceUsd: Number(p.price) || 1,
+        cryptoPrice: `${Number(p.price) || 1} USDT`,
+        category: p.category ?? '',
+        description: p.description ?? '',
+      }))
+    }
+  } catch (e: any) {
+    errorMsg = e?.message ?? String(e)
+  }
 
   return (
     <main className="min-h-screen bg-background pt-16">
@@ -31,11 +54,17 @@ export default function StorePage() {
             <p className="text-foreground/60 max-w-2xl mx-auto mt-3">Browse our full catalog and purchase items using USDT.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product as any} />
-            ))}
-          </div>
+          {errorMsg ? (
+            <div className="text-center text-red-500">Error loading products: {errorMsg}</div>
+          ) : products.length === 0 ? (
+            <div className="text-center text-foreground/60 py-16">No products available</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

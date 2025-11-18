@@ -60,7 +60,7 @@ export default function Header({ serverSession }: Props) {
             <Link href="/" className="text-foreground/70 hover:text-foreground transition">Home</Link>
             <a href="#about" className="text-foreground/70 hover:text-foreground transition">About</a>
             <Link href="/store" className="text-foreground/70 hover:text-foreground transition">Store</Link>
-            <a href="#contact" className="text-foreground/70 hover:text-foreground transition">Contact</a>
+            <Link href="/contact" className="text-foreground/70 hover:text-foreground transition">Contact</Link>
           </nav>
 
           {/* Right Icons */}
@@ -96,7 +96,7 @@ export default function Header({ serverSession }: Props) {
             {!session?.user && (
               <Link href={signInHref} className="px-3 py-1 bg-muted rounded-md text-sm block">Sign in</Link>
             )}
-            <a href="#contact" className="text-foreground/70 hover:text-foreground transition block">Contact</a>
+            <Link href="/contact" className="text-foreground/70 hover:text-foreground transition block">Contact</Link>
           </nav>
         )}
       </div>

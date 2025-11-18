@@ -66,7 +66,13 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Buy Button */}
-        <button className="mt-auto w-full px-4 py-2 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/50 transition-all flex items-center justify-center gap-2 group/btn">
+        <button
+          className="mt-auto w-full px-4 py-2 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/50 transition-all flex items-center justify-center gap-2 group/btn"
+          data-product-id={product.id}
+          data-price-usd={product.priceUsd}
+          data-crypto-price={product.cryptoPrice}
+          aria-label={`Buy ${product.title} for ${product.cryptoPrice}`}
+        >
           <ShoppingCart className="w-4 h-4" />
           <span>Buy Now</span>
         </button>
