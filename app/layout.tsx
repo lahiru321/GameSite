@@ -40,7 +40,7 @@ export default async function RootLayout({
   const session = await getServerSession()
 
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className={`font-sans antialiased bg-background text-foreground`}>
         <ThemeProvider attribute="class">
           <Header serverSession={session} />
