@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
+import { ThemeProvider } from '../components/theme-provider'
+import Header from '../components/header'
+import { getServerSession } from '../lib/supabase/server'
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -29,15 +32,20 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const session = await getServerSession()
+
   return (
     <html lang="en" className="dark">
       <body className={`font-sans antialiased bg-background text-foreground`}>
-        {children}
+        <ThemeProvider attribute="class">
+          <Header serverSession={session} />
+          {children}
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>
