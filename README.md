@@ -17,7 +17,7 @@ Install dependencies:
 
 ```powershell
 cd 'd:\Projects\Gaming E-Commerce website'
-pnpm install
+npm install
 ```
 
 Run the dev server:
@@ -55,3 +55,33 @@ Generated changes:
 - Updated header/footer/hero to link to `/store`
 - Removed product grid from homepage (`app/page.tsx`)
 - Added `.gitignore` and `README.md`
+
+## Authentication (Supabase)
+
+
+This project includes a basic Supabase authentication setup (client-side) using `@supabase/supabase-js`.
+
+Setup steps:
+
+- Install the dependency:
+
+```powershell
+npm install @supabase/supabase-js
+```
+
+- Add the following environment variables (for local `.env.local`):
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+- Routes added:
+	- `app/sign-in/page.tsx` — simple magic-link email sign-in page
+
+After installing deps and setting env vars, run `npm run dev` and visit `/sign-in` to test authentication.
+
+If you want, I can also:
+- Add middleware to protect specific routes.
+- Add social OAuth sign-in buttons (Google/GitHub) wired to Supabase.
+- Add an auth context/provider to allow any client component to read session changes.

@@ -1,11 +1,47 @@
-'use client'
+"use client"
 
+import React, { useState } from 'react'
 import Link from 'next/link'
-import { Menu, ShoppingCart, User } from 'lucide-react'
-import { useState } from 'react'
+import { Menu, ShoppingCart } from 'lucide-react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { createBrowserSupabase } from '../lib/supabase/browser'
 
-export default function Header() {
+type Props = { serverSession?: any }
+
+export default function Header({ serverSession }: Props) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [session, setSession] = useState<any>(serverSession ?? null)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const currentPath = pathname + (searchParams ? (searchParams.toString() ? `?${searchParams.toString()}` : '') : '')
+  const signInHref = `/sign-in?redirectTo=${encodeURIComponent(currentPath)}`
+
+  const supabase = createBrowserSupabase()
+
+  React.useEffect(() => {
+    let mounted = true
+    const getSession = async () => {
+      const { data } = await supabase.auth.getSession()
+      if (!mounted) return
+      setSession(data.session ?? null)
+    }
+    getSession()
+
+    const { data: subData } = supabase.auth.onAuthStateChange((_event: string, s: any) => {
+      setSession(s ?? null)
+      router.refresh()
+    })
+
+    return () => {
+      mounted = false
+      subData.subscription.unsubscribe()
+    }
+  }, [supabase, router])
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+  }
 
   return (
     <header className="fixed top-0 w-full z-50 border-b border-border bg-background/80 backdrop-blur-md">
@@ -24,7 +60,7 @@ export default function Header() {
             <Link href="/" className="text-foreground/70 hover:text-foreground transition">Home</Link>
             <a href="#about" className="text-foreground/70 hover:text-foreground transition">About</a>
             <Link href="/store" className="text-foreground/70 hover:text-foreground transition">Store</Link>
-            <a href="#contact" className="text-foreground/70 hover:text-foreground transition">Contact</a>
+            <Link href="/contact" className="text-foreground/70 hover:text-foreground transition">Contact</Link>
           </nav>
 
           {/* Right Icons */}
@@ -32,9 +68,16 @@ export default function Header() {
             <button className="p-2 hover:bg-muted rounded-lg transition">
               <ShoppingCart className="w-5 h-5" />
             </button>
-            <button className="p-2 hover:bg-muted rounded-lg transition">
-              <User className="w-5 h-5" />
-            </button>
+
+            {session?.user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-foreground/80">{session.user.email}</span>
+                <button onClick={handleSignOut} className="px-3 py-1 bg-muted rounded-md text-sm">Sign out</button>
+              </div>
+            ) : (
+              <Link href={signInHref} className="px-3 py-1 bg-muted rounded-md text-sm">Sign in</Link>
+            )}
+
             <button 
               className="md:hidden p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -50,7 +93,10 @@ export default function Header() {
             <Link href="/" className="text-foreground/70 hover:text-foreground transition block">Home</Link>
             <a href="#about" className="text-foreground/70 hover:text-foreground transition block">About</a>
             <Link href="/store" className="text-foreground/70 hover:text-foreground transition block">Store</Link>
-            <a href="#contact" className="text-foreground/70 hover:text-foreground transition block">Contact</a>
+            {!session?.user && (
+              <Link href={signInHref} className="px-3 py-1 bg-muted rounded-md text-sm block">Sign in</Link>
+            )}
+            <Link href="/contact" className="text-foreground/70 hover:text-foreground transition block">Contact</Link>
           </nav>
         )}
       </div>
